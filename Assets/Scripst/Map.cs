@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 
 [RequireComponent(typeof(PhotonView))]
-public class Map : MonoBehaviour
+public class Map : MonoBehaviourPunCallbacks
 {
     [SerializeField] private GameObject[] prefabs;
     List<InteractableObj> objs = new List<InteractableObj>();
@@ -36,6 +37,18 @@ public class Map : MonoBehaviour
     public void Spawn(int id)
     {
         photonView.RPC("OnlineSpawn", RpcTarget.AllBuffered, id);
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            for (int i = 0; i < objs.Count; ++i)
+            {
+                photonView.RPC("SyncPos", RpcTarget.Others, i, objs[i].transform.localPosition.x, objs[i].transform.localPosition.y, objs[i].transform.localPosition.z);
+                photonView.RPC("SyncRot", RpcTarget.Others, i, objs[i].transform.localRotation.x, objs[i].transform.localRotation.y, objs[i].transform.localRotation.z, objs[i].transform.localRotation.w);
+            }
+        }
     }
 
     [PunRPC] private void OnlineSpawn(int id)

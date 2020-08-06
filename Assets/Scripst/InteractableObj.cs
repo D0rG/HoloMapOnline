@@ -19,6 +19,7 @@ public class InteractableObj : MonoBehaviour
         transform = gameObject.transform;
         lastPosition = transform.localPosition;
         lastRotation = transform.localRotation;
+        transform.localPosition += offset;
     }
 
     public bool NeedSyncPosition()
