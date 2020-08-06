@@ -31,6 +31,12 @@ public class Map : MonoBehaviourPunCallbacks
                 photonView.RPC("SyncRot", RpcTarget.Others, i, objs[i].transform.localRotation.x, objs[i].transform.localRotation.y, objs[i].transform.localRotation.z, objs[i].transform.localRotation.w);
                 objs[i].AfterRotationSync();
             }
+
+            if (objs[i].NeedSyncScale())
+            {
+                photonView.RPC("SyncScale", RpcTarget.Others, i, objs[i].transform.localScale.x, objs[i].transform.localScale.y, objs[i].transform.localScale.z);
+                objs[i].AfterScaleSync();
+            }
         }
     }
 
@@ -51,6 +57,11 @@ public class Map : MonoBehaviourPunCallbacks
         }
     }
 
+    public void SyncCatchedStatus(int id, int status)
+    {
+        photonView.RPC("SyncStatus", RpcTarget.Others, id, status);
+    }
+
     [PunRPC] private void OnlineSpawn(int id)
     {
         GameObject newObj = Instantiate(prefabs[id], gameObject.transform.position, Quaternion.identity, gameObject.transform);
@@ -67,5 +78,15 @@ public class Map : MonoBehaviourPunCallbacks
     [PunRPC] private void SyncRot(int id, float x, float y, float z, float w)
     {
         objs[id].UpdRotation(x, y, z, w);
+    }
+
+    [PunRPC] private void SyncScale(int id, float x, float y, float z)
+    {
+        objs[id].UpdScale(x, y, z);
+    }
+
+    [PunRPC] private void SyncStatus(int id, int status)
+    {
+        objs[id].CatchObj(status * -1);
     }
 }
